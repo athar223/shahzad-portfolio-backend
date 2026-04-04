@@ -1,6 +1,8 @@
 from rest_framework import generics, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.core.mail import send_mail
+from django.conf import settings as django_settings
 from .models import Project, Video, Skill, ClientReview, Organization, Expertise, SiteSettings
 from .serializers import (
     ProjectSerializer, VideoSerializer, SkillSerializer,
@@ -30,7 +32,23 @@ class ContactCreateView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        contact = serializer.save()
+
+        # Send email notification
+        try:
+            site = SiteSettings.objects.first()
+            admin_email = site.email if site and site.email else None
+            if admin_email:
+                send_mail(
+                    subject=f"New Contact Message from {contact.name}",
+                    message=f"Name: {contact.name}\nEmail: {contact.email}\n\nMessage:\n{contact.message}",
+                    from_email=django_settings.DEFAULT_FROM_EMAIL,
+                    recipient_list=[admin_email],
+                    fail_silently=True,
+                )
+        except Exception:
+            pass
+
         return Response({"message": "Message sent successfully!"}, status=status.HTTP_201_CREATED)
 
 
