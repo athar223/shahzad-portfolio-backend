@@ -4,7 +4,7 @@ from django.db import models
 class Project(models.Model):
     title = models.CharField(max_length=200)
     description = models.TextField()
-    thumbnail = models.ImageField(upload_to='projects/')
+    thumbnail = models.ImageField(upload_to='projects/', blank=True)
     category = models.CharField(max_length=100)
     link = models.URLField(blank=True)
     order = models.IntegerField(default=0)
@@ -85,7 +85,7 @@ class ClientReview(models.Model):
 
 class Organization(models.Model):
     name = models.CharField(max_length=200)
-    logo = models.ImageField(upload_to='organizations/')
+    logo = models.ImageField(upload_to='organizations/', blank=True)
     youtube_link = models.URLField(blank=True, help_text="YouTube channel or video link")
     order = models.IntegerField(default=0)
 
